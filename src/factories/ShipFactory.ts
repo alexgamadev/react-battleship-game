@@ -1,5 +1,6 @@
 export interface ShipInterface {
     length: number,
+    startPos: [number, number],
     partsHit: boolean[],
     isSunk: () => boolean,
     hit: (location: number) => boolean,
@@ -15,7 +16,7 @@ export enum ShipTypes {
 }
 
 
-export default function createShip(length : number) : ShipInterface | null {
+export default function createShip(length: number, startPos: [number, number]) : ShipInterface | null {
     if(length <= 0) return null;
     if(length > ShipTypes.LENGTH_LIMIT - 1) return null;
 
@@ -23,7 +24,7 @@ export default function createShip(length : number) : ShipInterface | null {
     const partsHit = new Array(length);
     partsHit.fill(false);
 
-    function hit (location : number) : boolean  {
+    function hit (location: number) : boolean  {
         //Ensure hits only happen within ship boundaries
         if(location > partsHit.length - 1 || location < 0) return false;
         //Ensure same part can't be hit twice
@@ -42,6 +43,7 @@ export default function createShip(length : number) : ShipInterface | null {
     //Create ship object
     const ship : ShipInterface = {
         length,
+        startPos,
         partsHit,
         isSunk,
         hit, 
