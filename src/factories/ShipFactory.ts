@@ -6,9 +6,9 @@ export interface ShipInterface {
 }
 
 export enum ShipTypes {
-    SPEED_BOAT = 1,
-    PATROL_BOAT,
+    PATROL_BOAT = 2,
     SUBMARINE,
+    DESTROYER = 3,
     BATTLESHIP,
     CARRIER,
     LENGTH_LIMIT,
