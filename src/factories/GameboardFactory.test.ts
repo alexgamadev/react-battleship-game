@@ -9,7 +9,23 @@ describe('Gameboard initialisation', () => {
     });
 })
 
+describe('Gameboard getAtPosition', () => {
+    test('Invalid coordinates', () => {
+        const gameboard = createGameboard();
+        expect(gameboard.getAtPosition([-1, -1])).toBe(null);
+        expect(gameboard.getAtPosition([10, 3 ])).toBe(null);
+    });
 
+    test('Valid coordinates', () => {
+        const gameboard = createGameboard();
+
+        gameboard.grid[0] = 5;
+        expect(gameboard.getAtPosition([0, 0])).toBe(5);
+
+        gameboard.grid[gameboard.grid.length - 1] = 2;
+        expect(gameboard.getAtPosition([9, 9])).toBe(2);
+    });
+})
 
 describe('Gameboard checkValidPlacement', () => {
     let gameboard: GameboardInterface;
@@ -49,5 +65,20 @@ describe('Gameboard placeShip', () => {
         if(!ship) return;
         expect(gameboard.placeShip([8, 3], ship)).toBe(false);
         expect(gameboard.placeShip([6, 3], ship)).toBe(true);
+    });
+
+    test('Placed ship is stored in board', () => {
+        const ship = createShip(ShipTypes.SUBMARINE);
+        if(!ship) return;
+        gameboard.placeShip([6, 3], ship);
+        expect(gameboard.getAtPosition([6, 3])).toBe(1);
+    });
+
+    test('Ship cannot be placed on top of existing ship', () => {
+        const ship = createShip(ShipTypes.SUBMARINE);
+        if(!ship) return;
+        gameboard.placeShip([6, 3], ship);
+        expect(gameboard.getAtPosition([6, 3])).toBe(1);
+        expect(gameboard.placeShip([6, 3], ship)).toBe(false);
     });
 })
