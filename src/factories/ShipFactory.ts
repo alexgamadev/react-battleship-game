@@ -1,24 +1,18 @@
+import {coordinates} from '../types';
+import {ShipTypes} from '../types';
+
 export interface ShipInterface {
     length: number,
-    startPos: [number, number],
+    startPos: coordinates,
     partsHit: boolean[],
     isSunk: () => boolean,
     hit: (location: number) => boolean,
 }
 
-export enum ShipTypes {
-    PATROL_BOAT = 2,
-    SUBMARINE,
-    DESTROYER = 3,
-    BATTLESHIP,
-    CARRIER,
-    LENGTH_LIMIT,
-}
-
-
-export default function createShip(length: number, startPos: [number, number]) : ShipInterface | null {
+export default function createShip(length: number) : ShipInterface | null {
     if(length <= 0) return null;
     if(length > ShipTypes.LENGTH_LIMIT - 1) return null;
+    const startPos: coordinates = [-1, -1];
 
     //Fill parts hit array with initial values
     const partsHit = new Array(length);
