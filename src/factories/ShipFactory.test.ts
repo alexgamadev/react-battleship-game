@@ -2,12 +2,9 @@ import createShip from './ShipFactory';
 import {ShipTypes} from '../types';
 
 describe('Ship initialisation', () => {
-    it('Returns null if length invalid', () => {
+    it('Length valid/invalid', () => {
         expect(createShip(-1)).toBe(null);
         expect(createShip(ShipTypes.LENGTH_LIMIT)).toBe(null);
-    });
-
-    it('Returns correct length', () => {
         expect(createShip(ShipTypes.SUBMARINE)?.length).toBe(3);
     });
 
