@@ -1,4 +1,5 @@
 import createGameboard, { GameboardInterface } from './GameboardFactory';
+import {dimensions} from '../types';
 
 describe('Gameboard initialisation', () => {
     test('Gameboard initialises grid', () => {
@@ -23,10 +24,22 @@ describe('Gameboard checkValidPlacement', () => {
     });
 
     test('Check horizontal placement is valid', () => {
-        expect(gameboard.isValidPlacement([5, 3], [3, 'horizontal'])).toBe(true);
+        const dimensions: dimensions = {length: 3, direction: 'horizontal'};
+        expect(gameboard.isValidPlacement([5, 3], dimensions)).toBe(true);
     });
 
     test('Check horizontal placement is invalid', () => {
-        expect(gameboard.isValidPlacement([9, 3], [3, 'horizontal'])).toBe(false);
+        const dimensions: dimensions = {length: 3, direction: 'horizontal'};
+        expect(gameboard.isValidPlacement([9, 3], dimensions)).toBe(false);
+    });
+
+    test('Check vertical placement is valid', () => {
+        const dimensions: dimensions = {length: 3, direction: 'vertical'};
+        expect(gameboard.isValidPlacement([8, 5], dimensions)).toBe(true);
+    });
+
+    test('Check vertical placement is invalid', () => {
+        const dimensions: dimensions = {length: 3, direction: 'vertical'};
+        expect(gameboard.isValidPlacement([4, 8], dimensions)).toBe(false);
     });
 })

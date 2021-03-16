@@ -5,7 +5,8 @@ export interface GameboardInterface {
     isValidPlacement: (coordinates: coordinate, dimensions?: dimensions) => boolean,
 }
 
-function isValidCoordinate(coordinates: coordinate) : boolean {
+function isValidCoordinate(coordinates: coordinate | null) : boolean {
+    if(coordinates === null) return false;
     if(coordinates[0] < 0 || coordinates[1] < 0) return false;
     if(coordinates[0] >= 10 || coordinates[1] >= 10) return false;
 
@@ -18,11 +19,14 @@ export default function createGameboard(): GameboardInterface {
 
     function isValidPlacement (coordinates: coordinate, dimensions?: dimensions) : boolean {
         if(!isValidCoordinate(coordinates)) return false;
-        if(!dimensions) {
-            return true;
-        }
+        if(!dimensions) return true;
 
-        const endPos: coordinate = [coordinates[0] + dimensions[0], coordinates[1]];
+        //Calculate end coordinate based on dimensions
+        let endPos: coordinate | null = null;
+        if(dimensions.direction === 'horizontal') endPos = [coordinates[0] + dimensions.length, coordinates[1]];
+        else if(dimensions.direction === 'vertical') endPos = [coordinates[0], coordinates[1] + dimensions.length];
+
+        
         if(!isValidCoordinate(endPos)) return false;
 
         return true;
