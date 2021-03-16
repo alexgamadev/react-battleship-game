@@ -21,4 +21,12 @@ describe('Gameboard checkValidPlacement', () => {
     test('Check single coordinate is invalid', () => {
         expect(gameboard.isValidPlacement([-1, 8])).toBe(false);
     });
+
+    test('Check horizontal placement is valid', () => {
+        expect(gameboard.isValidPlacement([5, 3], [3, 'horizontal'])).toBe(true);
+    });
+
+    test('Check horizontal placement is invalid', () => {
+        expect(gameboard.isValidPlacement([9, 3], [3, 'horizontal'])).toBe(false);
+    });
 })
