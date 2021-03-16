@@ -2,6 +2,7 @@ import {coordinates} from '../types';
 import {ShipTypes} from '../types';
 
 export interface ShipInterface {
+    id: number,
     length: number,
     startPos: coordinates,
     partsHit: boolean[],
@@ -36,6 +37,7 @@ export default function createShip(length: number) : ShipInterface | null {
 
     //Create ship object
     const ship : ShipInterface = {
+        id: 1,
         length,
         startPos,
         partsHit,
