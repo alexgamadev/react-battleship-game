@@ -1,5 +1,6 @@
 import createGameboard, { GameboardInterface } from './GameboardFactory';
-import {dimensions} from '../types';
+import {dimensions, ShipTypes} from '../types';
+import createShip from './ShipFactory';
 
 describe('Gameboard initialisation', () => {
     test('Gameboard initialises grid', () => {
@@ -41,5 +42,19 @@ describe('Gameboard checkValidPlacement', () => {
     test('Check vertical placement is invalid', () => {
         const dimensions: dimensions = {length: 3, direction: 'vertical'};
         expect(gameboard.isValidPlacement([4, 8], dimensions)).toBe(false);
+    });
+})
+
+describe('Gameboard placeShip', () => {
+    let gameboard: GameboardInterface;
+
+    beforeEach(() => {
+        gameboard = createGameboard();
+    });
+
+    test('Check returns false if ship out of bounds', () => {
+        const ship = createShip(ShipTypes.SUBMARINE);
+        if(!ship) return;
+        expect(gameboard.placeShip([8, 3], ship)).toBe(false);
     });
 })
