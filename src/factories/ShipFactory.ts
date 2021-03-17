@@ -4,16 +4,15 @@ import {ShipTypes} from '../types';
 export interface ShipInterface {
     id: number,
     length: number,
-    startPos: coordinates,
     partsHit: boolean[],
     isSunk: () => boolean,
     hit: (location: number) => boolean,
 }
 
-export default function createShip(length: number) : ShipInterface | null {
+export default function createShip(id: number, length: number) : ShipInterface | null {
     if(length <= 0) return null;
     if(length > ShipTypes.LENGTH_LIMIT - 1) return null;
-    const startPos: coordinates = [-1, -1];
+    if(id < 0) return null;
 
     //Fill parts hit array with initial values
     const partsHit = new Array(length);
@@ -37,9 +36,8 @@ export default function createShip(length: number) : ShipInterface | null {
 
     //Create ship object
     const ship : ShipInterface = {
-        id: 1,
+        id,
         length,
-        startPos,
         partsHit,
         isSunk,
         hit, 
