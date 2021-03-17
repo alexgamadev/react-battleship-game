@@ -61,24 +61,37 @@ describe('Gameboard placeShip', () => {
     });
 
     test('Test ship out of bounds', () => {
-        const ship = createShip(ShipTypes.SUBMARINE);
+        const ship = createShip(0, ShipTypes.SUBMARINE);
         if(!ship) return;
         expect(gameboard.placeShip([8, 3], ship)).toBe(false);
         expect(gameboard.placeShip([6, 3], ship)).toBe(true);
     });
 
     test('Placed ship is stored in board', () => {
-        const ship = createShip(ShipTypes.SUBMARINE);
+        const ship = createShip(0, ShipTypes.SUBMARINE);
         if(!ship) return;
         gameboard.placeShip([6, 3], ship);
-        expect(gameboard.getAtPosition([6, 3])).toBe(1);
+        expect(gameboard.getAtPosition([6, 3])).toBe(ship.id);
     });
 
+    test('Ship gets moved correctly', () => {
+        const ship = createShip(0, ShipTypes.SUBMARINE);
+        if(!ship) return;
+        
+        //Place ship initially then move and check that old position was cleared
+        expect(gameboard.placeShip([6, 3], ship)).toBe(true);
+        expect(gameboard.getAtPosition([6, 3])).toBe(ship.id);
+        expect(gameboard.placeShip([1, 8], ship)).toBe(true);
+        expect(gameboard.getAtPosition([6, 3])).not.toBe(ship.id);
+        expect(gameboard.getAtPosition([1, 8])).toBe(ship.id);
+    });
+
+
     test('Ship cannot be placed on top of existing ship', () => {
-        const ship = createShip(ShipTypes.SUBMARINE);
+        const ship = createShip(0, ShipTypes.SUBMARINE);
         if(!ship) return;
         gameboard.placeShip([6, 3], ship);
-        expect(gameboard.getAtPosition([6, 3])).toBe(1);
-        expect(gameboard.placeShip([6, 3], ship)).toBe(false);
+        expect(gameboard.getAtPosition([6, 3])).toBe(ship.id);
+        expect(gameboard.placeShip([4, 3], ship)).toBe(false);
     });
 })
