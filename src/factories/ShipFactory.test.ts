@@ -3,17 +3,17 @@ import {ShipTypes} from '../types';
 
 describe('Ship initialisation', () => {
     it('Length valid/invalid', () => {
-        expect(createShip(-1)).toBe(null);
-        expect(createShip(ShipTypes.LENGTH_LIMIT)).toBe(null);
-        expect(createShip(ShipTypes.SUBMARINE)?.length).toBe(3);
+        expect(createShip(0, -1)).toBe(null);
+        expect(createShip(0, ShipTypes.LENGTH_LIMIT)).toBe(null);
+        expect(createShip(0, ShipTypes.SUBMARINE)?.length).toBe(3);
     });
 
     test('Initial parts hit are all false', () => {
-        expect(createShip(ShipTypes.SUBMARINE)?.partsHit).toStrictEqual([false, false, false]);
+        expect(createShip(0, ShipTypes.SUBMARINE)?.partsHit).toStrictEqual([false, false, false]);
     });
 
     test('Ship is sunk by default', () => {
-        expect(createShip(ShipTypes.SUBMARINE)?.isSunk()).toBe(false);
+        expect(createShip(0, ShipTypes.SUBMARINE)?.isSunk()).toBe(false);
     });
 })
 
@@ -21,7 +21,7 @@ describe('Ship hit function', () => {
     let ship: any;
 
     beforeEach(() => {
-        ship = createShip(ShipTypes.SUBMARINE);
+        ship = createShip(0, ShipTypes.SUBMARINE);
     });
 
     test('Hit returns true when valid', () => {
