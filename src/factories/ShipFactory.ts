@@ -4,6 +4,7 @@ import {ShipTypes} from '../helpers/types';
 export interface ShipInterface {
     id: number,
     length: number,
+    position: coordinates[],
     partsHit: boolean[],
     isSunk: () => boolean,
     hit: (location: number) => boolean,
@@ -38,6 +39,7 @@ export default function createShip(id: number, length: number) : ShipInterface |
     const ship : ShipInterface = {
         id,
         length,
+        position: [],
         partsHit,
         isSunk,
         hit, 
