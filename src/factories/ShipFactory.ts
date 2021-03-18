@@ -1,5 +1,5 @@
-import {coordinates} from '../types';
-import {ShipTypes} from '../types';
+import {coordinates} from '../helpers/types';
+import {ShipTypes} from '../helpers/types';
 
 export interface ShipInterface {
     id: number,
