@@ -3,8 +3,9 @@ import { ShipInterface } from './ShipFactory';
 
 export interface GameboardInterface {
     grid: boolean[],
-    ships: {data: ShipInterface, position: coordinates[]}[],
-    getAtPosition: (coordinates: coordinates) => number | boolean | null,
+    ships: ShipInterface[],
+    isHitAtPos: (coordinates: coordinates) => boolean | null,
+    getShipAtPos: (coordinates: coordinates) => ShipInterface | null,
     recieveAttack: (coordinates: coordinates) => boolean,
     isValidPlacement: (coordinates: coordinates, dimensions?: dimensions) => boolean,
     placeShip: (coordinates: coordinates, ship : ShipInterface) => boolean,
@@ -43,14 +44,14 @@ export default function createGameboard(): GameboardInterface {
     //Initialise grid
     let grid: boolean[] = new Array(100);
     grid.fill(false);
-    const ships: {data: ShipInterface, position: coordinates[]}[] = [];
+    const ships: ShipInterface[] = [];
 
-    function setAtPosition(coordinates: coordinates, value: boolean) {
+    function setHitAtPos(coordinates: coordinates, value: boolean) {
         const yValue = coordinates[1] * 10;
         grid[yValue + coordinates[0]] = value;
     }
 
-    function getAtPosition(coordinates: coordinates) : number | boolean | null {
+    function getShipAtPos(coordinates: coordinates) : ShipInterface | null {
         if(!isValidCoord(coordinates)) return null;
 
         //Check to see if ship exists at coordinates
@@ -58,7 +59,13 @@ export default function createGameboard(): GameboardInterface {
             return ship.position.some(pos => coordinatesEqual(pos, coordinates));
         });
 
-        if(ship !== undefined) return ship.data.id;
+        if(ship !== undefined) return ship;
+
+        return null;
+    }
+
+    function isHitAtPos(coordinates: coordinates) : boolean | null {
+        if(!isValidCoord(coordinates)) return null;
 
         const yValue = coordinates[1] * 10;
         return grid[yValue + coordinates[0]];
@@ -71,16 +78,13 @@ export default function createGameboard(): GameboardInterface {
         //Get intermediate coordinates
         const coordsArray = getInterCoords(startPos, dimensions);
         
-        if(coordsArray.some(coord => !isValidCoord(coord))) return false;
+        //Test if all coords are valid and don't contain a ship
+        if(coordsArray.some(coord => {
+            if(!isValidCoord(coord)) return true;
+            if(getShipAtPos(coord) !== null) return true;
+        })) return false;
 
-        //Check for existing ships
-        const isInvalid = coordsArray.some((coord) => {
-            if(ships.some(ship => ship.position.includes(coord))) {
-                return true;
-            }
-        });
-
-        return !isInvalid;
+        return true;
     }
 
     function placeShip (position: coordinates, newShip : ShipInterface) : boolean {
@@ -91,9 +95,9 @@ export default function createGameboard(): GameboardInterface {
         const coordsArray = getInterCoords(position, shipDimensions);
 
         //If ship doesn't exist already, store in board
-        const ship = ships.find(ship => ship.data.id === newShip.id);
+        const ship = ships.find(ship => ship.id === newShip.id);
         if(!ship) {
-            ships.push({data: newShip, position: coordsArray});
+            ships.push({...newShip, position: coordsArray});
         } else {
             ship.position = coordsArray;
         }
@@ -103,14 +107,22 @@ export default function createGameboard(): GameboardInterface {
 
     function recieveAttack(coordinates: coordinates) : boolean {
         if(!isValidCoord(coordinates)) return false;
-        setAtPosition(coordinates, true);
+        if(isHitAtPos(coordinates) === true) return false;
+        const ship = getShipAtPos(coordinates);
+        if(ship !== null) {
+           const posIndex = ship.position.findIndex(pos => coordinatesEqual(pos, coordinates));
+           if(posIndex) ship.hit(posIndex);
+        }
+
+        setHitAtPos(coordinates, true);
         return true;
     }
 
     const gameboard = {
         grid,
         ships,
-        getAtPosition,
+        isHitAtPos,
+        getShipAtPos,
         recieveAttack,
         isValidPlacement,
         placeShip,

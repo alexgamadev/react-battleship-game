@@ -12,15 +12,15 @@ describe('Gameboard initialisation', () => {
 describe('Gameboard getAtPosition', () => {
     test('Invalid coordinates', () => {
         const gameboard = createGameboard();
-        expect(gameboard.getAtPosition([-1, -1])).toBe(null);
-        expect(gameboard.getAtPosition([10, 3 ])).toBe(null);
+        expect(gameboard.isHitAtPos([-1, -1])).toBe(null);
+        expect(gameboard.isHitAtPos([10, 3 ])).toBe(null);
     });
 
     test('Valid coordinates', () => {
         const gameboard = createGameboard();
 
-        expect(gameboard.getAtPosition([0, 0])).toBe(false);
-        expect(gameboard.getAtPosition([9, 9])).toBe(false);
+        expect(gameboard.isHitAtPos([0, 0])).toBe(false);
+        expect(gameboard.isHitAtPos([9, 9])).toBe(false);
     });
 })
 
@@ -68,8 +68,9 @@ describe('Gameboard placeShip', () => {
         const ship = createShip(1, ShipTypes.SUBMARINE);
         if(!ship) return;
         gameboard.placeShip([6, 3], ship);
-        const boardShip = gameboard.ships.find(boardShip => boardShip.data.id === ship.id);
-        expect(boardShip).toBeTruthy();
+        expect(gameboard.ships.length).toBe(1);
+        const boardShip = gameboard.ships.find(boardShip => boardShip.id === ship.id);
+        expect(boardShip).not.toBe(undefined);
         expect(boardShip?.position[0]).toStrictEqual([6, 3]);
     });
 
@@ -77,12 +78,16 @@ describe('Gameboard placeShip', () => {
         const ship = createShip(1, ShipTypes.SUBMARINE);
         if(!ship) return;
         
-        //Place ship initially then move and check that old position was cleared
+        //Place ship initially
         expect(gameboard.placeShip([6, 3], ship)).toBe(true);
-        expect(gameboard.getAtPosition([6, 3])).toBe(ship.id);
+        expect(gameboard.ships.length).toBe(1);
+        expect(gameboard.getShipAtPos([6, 3])?.id).toBe(ship.id);
+
+        // Move and check that old position was cleared
         expect(gameboard.placeShip([1, 8], ship)).toBe(true);
-        expect(gameboard.getAtPosition([6, 3])).not.toBe(ship.id);
-        expect(gameboard.getAtPosition([1, 8])).toBe(ship.id);
+        expect(gameboard.ships.length).toBe(1);
+        expect(gameboard.getShipAtPos([6, 3])).toBe(null);
+        expect(gameboard.getShipAtPos([1, 8])?.id).toBe(ship.id);
     });
 })
 
@@ -99,7 +104,20 @@ describe('Gameboard recieveAttack', () => {
     })
 
     test('Hits stored', () => {
-        gameboard.recieveAttack([4, 8])
-        expect(gameboard.getAtPosition([4, 8])).toBe(true);
+        gameboard.recieveAttack([4, 8]);
+        expect(gameboard.isHitAtPos([4, 8])).toBe(true);
+    })
+
+    test('Same place cannot be hit twice', () => {
+        gameboard.recieveAttack([4, 8]);
+        expect(gameboard.recieveAttack([4, 8])).toBe(false);
+    })
+
+    test('Ship is hit by attack', () => {
+        const ship = createShip(1, ShipTypes.SUBMARINE);
+        if(!ship) return;
+        gameboard.placeShip([6, 3], ship);
+        gameboard.recieveAttack([7, 3]);
+        expect(ship?.partsHit).toStrictEqual([false, true, false]);
     })
 });
