@@ -1,5 +1,5 @@
 import createShip from './ShipFactory';
-import {ShipTypes} from '../types';
+import {ShipTypes} from '../helpers/types';
 
 describe('Ship initialisation', () => {
     it('Length valid/invalid', () => {

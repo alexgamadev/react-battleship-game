@@ -1,24 +1,34 @@
-import {coordinates, dimensions} from '../types';
+import {coordinates, dimensions} from '../helpers/types';
 import { ShipInterface } from './ShipFactory';
 
 export interface GameboardInterface {
-    grid: number[],
-    ships: number[],
-    getAtPosition: (coordinates: coordinates) => number | null,
+    grid: boolean[],
+    ships: {data: ShipInterface, position: coordinates[]}[],
+    getAtPosition: (coordinates: coordinates) => number | boolean | null,
+    recieveAttack: (coordinates: coordinates) => boolean,
     isValidPlacement: (coordinates: coordinates, dimensions?: dimensions) => boolean,
     placeShip: (coordinates: coordinates, ship : ShipInterface) => boolean,
 }
 
-function getInterCoords(start: coordinates, end: coordinates) : coordinates[] {
+function getInterCoords(startPos: coordinates, dimensions: dimensions) : coordinates[] {
     let coordArr: coordinates[] = [];
+    //Calculate end coordinates based on dimensions
+    let endPos: coordinates = [-1, -1];
+    if(dimensions.direction === 'horizontal') endPos = [startPos[0] + dimensions.length, startPos[1]];
+    else if(dimensions.direction === 'vertical') endPos = [startPos[0], startPos[1] + dimensions.length];
 
-    for(let x = start[0]; x <= end[0]; x++) {
-        for(let y = start[1]; y <= end[1]; y++) {
+    for(let x = startPos[0]; x <= endPos[0]; x++) {
+        for(let y = startPos[1]; y <= endPos[1]; y++) {
             coordArr.push([x, y]);
         }
     }
 
     return coordArr;
+}
+
+function coordinatesEqual(a: coordinates, b: coordinates) : boolean {
+    if(a[0] === b[0] && a[1] === b[1]) return true;
+    return false;
 }
 
 function isValidCoord(coord: coordinates | null) : boolean {
@@ -31,19 +41,26 @@ function isValidCoord(coord: coordinates | null) : boolean {
 
 export default function createGameboard(): GameboardInterface {
     //Initialise grid
-    let grid: number[] = new Array(100);
-    grid.fill(-1);
-    const ships: number[] = [];
+    let grid: boolean[] = new Array(100);
+    grid.fill(false);
+    const ships: {data: ShipInterface, position: coordinates[]}[] = [];
 
-    function setAtPosition(coordinates: coordinates, id: number) {
+    function setAtPosition(coordinates: coordinates, value: boolean) {
         const yValue = coordinates[1] * 10;
-        grid[yValue + coordinates[0]] = id;
+        grid[yValue + coordinates[0]] = value;
     }
 
-    function getAtPosition(coordinates: coordinates) : number | null {
+    function getAtPosition(coordinates: coordinates) : number | boolean | null {
         if(!isValidCoord(coordinates)) return null;
+
+        //Check to see if ship exists at coordinates
+        const ship = ships.find(ship => {
+            return ship.position.some(pos => coordinatesEqual(pos, coordinates));
+        });
+
+        if(ship !== undefined) return ship.data.id;
+
         const yValue = coordinates[1] * 10;
-    
         return grid[yValue + coordinates[0]];
     }
 
@@ -51,18 +68,14 @@ export default function createGameboard(): GameboardInterface {
         if(!isValidCoord(startPos)) return false;
         if(!dimensions) return true;
 
-        //Calculate end coordinates based on dimensions
-        let endPos: coordinates = [-1, -1];
-        if(dimensions.direction === 'horizontal') endPos = [startPos[0] + dimensions.length, startPos[1]];
-        else if(dimensions.direction === 'vertical') endPos = [startPos[0], startPos[1] + dimensions.length];
-        if(!isValidCoord(endPos)) return false;
-
         //Get intermediate coordinates
-        const coordsArray = getInterCoords(startPos, endPos);
+        const coordsArray = getInterCoords(startPos, dimensions);
+        
+        if(coordsArray.some(coord => !isValidCoord(coord))) return false;
 
         //Check for existing ships
         const isInvalid = coordsArray.some((coord) => {
-            if(getAtPosition(coord) !== -1) {
+            if(ships.some(ship => ship.position.includes(coord))) {
                 return true;
             }
         });
@@ -70,18 +83,27 @@ export default function createGameboard(): GameboardInterface {
         return !isInvalid;
     }
 
-    function placeShip (coordinates: coordinates, ship : ShipInterface) : boolean {
-        if(!isValidPlacement(coordinates, {length: ship.length, direction: 'horizontal'})) return false;
+    function placeShip (position: coordinates, newShip : ShipInterface) : boolean {
+        const shipDimensions: dimensions = {length: newShip.length, direction: 'horizontal'};
+        if(!isValidPlacement(position, {length: newShip.length, direction: 'horizontal'})) return false;
 
-        if(ships.includes(ship.id)) {
-            grid = grid.map(value => value === ship.id ? -1 : value);
-            
+        //Get intermediate coordinates
+        const coordsArray = getInterCoords(position, shipDimensions);
+
+        //If ship doesn't exist already, store in board
+        const ship = ships.find(ship => ship.data.id === newShip.id);
+        if(!ship) {
+            ships.push({data: newShip, position: coordsArray});
         } else {
-            ships.push(ship.id);
+            ship.position = coordsArray;
         }
 
-        setAtPosition(coordinates, ship.id);
+        return true;
+    }
 
+    function recieveAttack(coordinates: coordinates) : boolean {
+        if(!isValidCoord(coordinates)) return false;
+        setAtPosition(coordinates, true);
         return true;
     }
 
@@ -89,6 +111,7 @@ export default function createGameboard(): GameboardInterface {
         grid,
         ships,
         getAtPosition,
+        recieveAttack,
         isValidPlacement,
         placeShip,
     }
