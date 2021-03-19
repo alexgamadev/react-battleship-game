@@ -15,8 +15,8 @@ function getInterCoords(startPos: coordinates, dimensions: dimensions) : coordin
     let coordArr: coordinates[] = [];
     //Calculate end coordinates based on dimensions
     let endPos: coordinates = [-1, -1];
-    if(dimensions.direction === 'horizontal') endPos = [startPos[0] + dimensions.length, startPos[1]];
-    else if(dimensions.direction === 'vertical') endPos = [startPos[0], startPos[1] + dimensions.length];
+    if(dimensions.direction === 'horizontal') endPos = [startPos[0] + (dimensions.length - 1), startPos[1]];
+    else if(dimensions.direction === 'vertical') endPos = [startPos[0], startPos[1] + (dimensions.length - 1)];
 
     for(let x = startPos[0]; x <= endPos[0]; x++) {
         for(let y = startPos[1]; y <= endPos[1]; y++) {
@@ -109,9 +109,10 @@ export default function createGameboard(): GameboardInterface {
         if(!isValidCoord(coordinates)) return false;
         if(isHitAtPos(coordinates) === true) return false;
         const ship = getShipAtPos(coordinates);
+
         if(ship !== null) {
            const posIndex = ship.position.findIndex(pos => coordinatesEqual(pos, coordinates));
-           if(posIndex) ship.hit(posIndex);
+           if(posIndex !== -1) ship.hit(posIndex);
         }
 
         setHitAtPos(coordinates, true);

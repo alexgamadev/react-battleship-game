@@ -117,7 +117,18 @@ describe('Gameboard recieveAttack', () => {
         const ship = createShip(1, ShipTypes.SUBMARINE);
         if(!ship) return;
         gameboard.placeShip([6, 3], ship);
+        expect(gameboard.recieveAttack([6, 3])).toBe(true);
+        expect(ship?.partsHit).toStrictEqual([true, false, false]);
+    })
+
+    test('Ship is sunk by attacks', () => {
+        const ship = createShip(1, ShipTypes.SUBMARINE);
+        if(!ship) return;
+        gameboard.placeShip([6, 3], ship);
+        gameboard.recieveAttack([6, 3]);
         gameboard.recieveAttack([7, 3]);
-        expect(ship?.partsHit).toStrictEqual([false, true, false]);
+        gameboard.recieveAttack([8, 3]);
+        expect(ship?.partsHit).toStrictEqual([true, true, true]);
+        expect(ship.isSunk()).toBe(true);
     })
 });
