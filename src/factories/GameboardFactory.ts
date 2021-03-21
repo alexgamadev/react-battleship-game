@@ -1,3 +1,4 @@
+import { findAllByDisplayValue } from '@testing-library/dom';
 import {coordinates, dimensions} from '../helpers/types';
 import { ShipInterface } from './ShipFactory';
 
@@ -9,6 +10,7 @@ export interface GameboardInterface {
     recieveAttack: (coordinates: coordinates) => boolean,
     isValidPlacement: (coordinates: coordinates, dimensions?: dimensions) => boolean,
     placeShip: (coordinates: coordinates, ship : ShipInterface) => boolean,
+    allShipsSunk: () => boolean,
 }
 
 function getInterCoords(startPos: coordinates, dimensions: dimensions) : coordinates[] {
@@ -119,6 +121,12 @@ export default function createGameboard(): GameboardInterface {
         return true;
     }
 
+    function allShipsSunk() : boolean {
+        if(ships.length <= 0) return false;
+
+        return ships.every(ship => ship.isSunk());
+    }
+
     const gameboard = {
         grid,
         ships,
@@ -127,6 +135,7 @@ export default function createGameboard(): GameboardInterface {
         recieveAttack,
         isValidPlacement,
         placeShip,
+        allShipsSunk,
     }
 
     return gameboard;

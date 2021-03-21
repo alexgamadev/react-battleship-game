@@ -132,3 +132,48 @@ describe('Gameboard recieveAttack', () => {
         expect(ship.isSunk()).toBe(true);
     })
 });
+
+describe('Gameboard allShipsSunk', () => {
+    let gameboard: GameboardInterface;
+
+    beforeEach(() => {
+        gameboard = createGameboard();
+    });
+
+    test('False by default', () => {
+        expect(gameboard.allShipsSunk()).toBe(false);
+    })
+
+    let shipOne = createShip(1, ShipTypes.SUBMARINE);
+    let shipTwo = createShip(2, ShipTypes.PATROL_BOAT);
+
+    beforeEach(() => {
+        if(!shipOne || !shipTwo) return;
+        gameboard.placeShip([6, 3], shipOne);
+        gameboard.placeShip([2, 7], shipTwo);
+    });
+
+    test('Correctly reports false ', () => {
+        //Attack ships
+        gameboard.recieveAttack([6, 3]);
+        gameboard.recieveAttack([7, 3]);
+        gameboard.recieveAttack([8, 3]);
+
+        expect(shipOne?.isSunk()).toBe(true);
+        expect(shipTwo?.isSunk()).toBe(false);
+        expect(gameboard.allShipsSunk()).toBe(false);
+    })
+
+    test('Correctly reports true ', () => {
+        //Attack ships
+        gameboard.recieveAttack([6, 3]);
+        gameboard.recieveAttack([7, 3]);
+        gameboard.recieveAttack([8, 3]);
+        gameboard.recieveAttack([2, 7]);
+        gameboard.recieveAttack([3, 7]);
+
+        expect(shipOne?.isSunk()).toBe(true);
+        expect(shipTwo?.isSunk()).toBe(true);
+        expect(gameboard.allShipsSunk()).toBe(true);
+    })
+});
